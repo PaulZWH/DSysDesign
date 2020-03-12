@@ -10,7 +10,9 @@
 ![hardware](img/hardware.png)
 
 此次设计基于ALINX的开发平台AX301，开发板使用的是ALTERA公司的Cyclone IV系列FPGA，型号为EP4CE6F17C8。
+
 本设计需要在摄像头接口处连接外设摄像头，插入SD卡和连接VGA接口。
+
 本设计采用了VGA外接显示器的方案，实际也可在扩展口连接LCD外设。
 
 ## 三、功能描述
