@@ -56,9 +56,6 @@ wire			video_clk;		//video pixel clock
 wire[15:0]		vout_data;
 
 
-wire[9:0]		lut_index;
-wire[31:0]		lut_data;
-
 wire[15:0]		cmos_16bit_data;
 wire			cmos_16bit_wr;
 wire			cmos_wr_req;
@@ -127,7 +124,8 @@ assign	cmos_pwdn	=	1'b0;
 wire[23:0]		bmp_data;
 assign sd_write_data = {bmp_data[23:19],bmp_data[15:10],bmp_data[7:3]};
 
-sys_ctrl sys_ctrl_m0(
+sys_ctrl sys_ctrl_m0
+(
 	.clk			(clk		),
 	.reset			(reset		),
 	.key1			(key1		),
@@ -208,40 +206,18 @@ video_timing_data video_timing_data_m0
 	.vout_data		(vout_data			)
 );	
 
-//I2C master controller
-i2c_config i2c_config_m0(
-	.rst			(~rst_n			),
-	.clk			(clk			),
-	.clk_div_cnt	(16'd500		),
-	.i2c_addr_2byte	(1'b1			),
-	.lut_index		(lut_index		),
-	.lut_dev_addr	(lut_data[31:24]),
-	.lut_reg_addr	(lut_data[23:8]	),
-	.lut_reg_data	(lut_data[7:0]	),
-	.error			(				),
-	.done			(				),
-	.i2c_scl		(cmos_scl		),
-	.i2c_sda		(cmos_sda		)
-);
-//configure look-up table
-lut_ov5640_rgb565_1024_768 lut_ov5640_rgb565_1024_768_m0(
-	.lut_index		(lut_index		),
-	.lut_data		(lut_data		)
-);
-//CMOS sensor 8bit data is converted to 16bit data
-cmos_8_16bit cmos_8_16bit_m0(
-	.rst			(~rst_n			),
-	.pclk			(cmos_pclk		),
-	.pdata_i		(cmos_db		),
-	.de_i			(cmos_href		),
-	.pdata_o		(cmos_16bit_data),
-	.hblank			(				),
-	.de_o			(cmos_16bit_wr	)
-);
-//CMOS sensor writes the request and generates the read and write address index
-cmos_write_req_gen cmos_write_req_gen_m0(
+cmos_process cmos_process_m0
+(
 	.rst				(~rst_n				),
+	.clk				(clk				),
+	.cmos_scl			(cmos_scl			),
+	.cmos_sda			(cmos_sda			),
 	.pclk				(cmos_pclk			),
+	.pdata_i			(cmos_db			),
+	.de_i				(cmos_href			),
+	.pdata_o			(cmos_16bit_data	),
+	.hblank				(					),
+	.de_o				(cmos_16bit_wr		),
 	.cmos_vsync			(cmos_vsync			),
 	.write_req			(cmos_wr_req		),
 	.write_addr_index	(cmos_wr_addr_index	),
@@ -341,30 +317,5 @@ sd_card_bmp sd_card_bmp_m0(
 	.SD_MOSI				(SD_MOSI			),
 	.SD_MISO				(SD_MISO			)	
 );
-
-//with a digital display of state_code
-// 0:SD card is initializing
-// 1:wait for the button to press
-// 2:looking for the BMP file
-// 3:reading
-
-//seg_decoder seg_decoder_m0(
-//	.bin_data                   (state_code               ),
-//	.seg_data                   (seg_data_0               )
-//);
-//
-//seg_scan seg_scan_m0(
-//	.clk                        (clk                      ),
-//	.rst_n                      (rst_n                    ),
-//	.seg_sel                    (seg_sel                  ),
-//	.seg_data                   (seg_data                 ),
-//	.seg_data_0                 ({1'b1,7'b1111_111}       ),
-//	.seg_data_1                 ({1'b1,7'b1111_111}       ),
-//	.seg_data_2                 ({1'b1,7'b1111_111}       ),
-//	.seg_data_3                 ({1'b1,7'b1111_111}       ),
-//	.seg_data_4                 ({1'b1,7'b1111_111}       ),
-//	.seg_data_5                 ({1'b1,seg_data_0}        )
-//);
-
 
 endmodule
