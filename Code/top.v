@@ -107,7 +107,7 @@ wire[15:0]		save_read_data;
 wire			vga_read_req;
 wire			vga_read_req_ack;
 wire			vga_read_en;
-wire			vga_read_data;
+wire[15:0]		vga_read_data;
 
 assign	vga_out_hs	=	hs;
 assign	vga_out_vs	=	vs;
